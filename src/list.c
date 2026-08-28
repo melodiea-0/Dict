@@ -1,13 +1,14 @@
 #include <list.h>
 
 List list_create() {
-  return (List){.size = 0, .head = NULL, .tail = NULL, .error='0'};
+  return (List){.size = 0, .head = NULL, .tail = NULL, .error=LIST_OK};
 }
 
 ListNode list_create_node() { return (ListNode){.prev = NULL, .next = NULL}; }
 
-void list_append(List* list, ListNode* node) {
-  Stopif(!list || !node, list->error = 'e';, "=== empty list or node ===");
+List* list_append(List* list, ListNode* node) {
+  ListCheckError(!list, return NULL;, LIST_ERROR_EMPTY);
+  ListCheckError(!node, list->error = LIST_ERROR_NULL_ARGUMENT; return list;, LIST_ERROR_NULL_ARGUMENT);
   if (list->tail == NULL) {
     list->tail = list->head = node;
   } else {
@@ -17,10 +18,12 @@ void list_append(List* list, ListNode* node) {
     node->next = NULL;
   }
   list->size += 1;
+  return list;
 }
 
-void list_append_head(List* list, ListNode* node) {
-  Stopif(!list || !node, list->error = 'e';, "=== empty list or node ===");
+List* list_append_head(List* list, ListNode* node) {
+  ListCheckError(!list, return NULL;, LIST_ERROR_EMPTY);
+  ListCheckError(!node, list->error = LIST_ERROR_NULL_ARGUMENT; return list;, LIST_ERROR_NULL_ARGUMENT);
   if (list->tail == NULL) {
     list->tail = list->head = node;
   } else {
@@ -30,11 +33,12 @@ void list_append_head(List* list, ListNode* node) {
     node->next = old_node;
   }
   list->size += 1;
+  return list;
 }
 
-void list_append_index(List* list, ListNode* node, size_t index) {
-  Stopif(!list, return;, "=== empty list ===");
-  Stopif(!node, list->error = 'e';, "=== empty node ===");
+List* list_append_index(List* list, ListNode* node, size_t index) {
+  ListCheckError(!list, return NULL;, LIST_ERROR_EMPTY);
+  ListCheckError(!node, list->error = LIST_ERROR_NULL_ARGUMENT; return list;, LIST_ERROR_NULL_ARGUMENT);
   ListNode* old_node = list_get(list, index);
   if (index == 0) { 
     list_append_head(list, node); 
@@ -45,11 +49,12 @@ void list_append_index(List* list, ListNode* node, size_t index) {
     node->next = old_node;
     list->size += 1;
   }
+  return list;
 }
 
 ListNode* list_get(List *list, size_t index) {
-  Stopif(!list, return NULL;, "=== empty list ===");
-  Stopif(index >= list->size, list->error = 'e'; return NULL;, "=== incorrect index ===");
+  ListCheckError(!list, return NULL;, LIST_ERROR_EMPTY);
+  ListCheckError(index >= list->size, list->error = LIST_ERROR_INDEX_OUT_OF_RANGE; return NULL;, LIST_ERROR_INDEX_OUT_OF_RANGE);
   ListNode* node = list->head;
   for (size_t i = 0; i < index; ++i) {
     node = node->next;
@@ -58,7 +63,7 @@ ListNode* list_get(List *list, size_t index) {
 }
 
 ListNode* list_remove_index(List* list, size_t index) {
-  Stopif(!list, return NULL;, "=== empty list ===");
+  ListCheckError(!list, return NULL;, LIST_ERROR_EMPTY);
   if (index + 1 == list->size) return list_pop(list);
   ListNode* node = list_get(list, index);
   if (node != NULL) {
@@ -75,7 +80,7 @@ ListNode* list_remove_index(List* list, size_t index) {
 }
 
 ListNode* list_pop(List* list) {
-  Stopif(!list, return NULL;, "=== empty list ===");
+  ListCheckError(!list, return NULL;, LIST_ERROR_EMPTY);
   ListNode* node = list_get(list, list->size - 1);
   if (node != NULL) {
     list->size -= 1;
@@ -89,4 +94,20 @@ ListNode* list_pop(List* list) {
     node->prev = node->next = NULL;
   }
   return node;
+}
+
+
+const char* list_error_string(ListError error) {
+  switch (error) {
+        case LIST_OK:
+            return "no error";
+        case LIST_ERROR_NULL_ARGUMENT:
+            return "null argument";
+        case LIST_ERROR_INDEX_OUT_OF_RANGE:
+            return "index out of range";
+        case LIST_ERROR_EMPTY:
+            return "list is empty";
+        default:
+            return "unknown error";
+    }
 }

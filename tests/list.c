@@ -441,6 +441,160 @@ END_TEST
 
 
 /* ============================================================
+ * NULL arguments
+ * ============================================================ */
+
+START_TEST(test_list_get_null_list)
+{
+    ListNode* result = list_get(NULL, 0);
+
+    ck_assert_ptr_null(result);
+}
+END_TEST
+
+
+START_TEST(test_list_get_null_list_invalid_index)
+{
+    ListNode* result = list_get(NULL, 100);
+
+    ck_assert_ptr_null(result);
+}
+END_TEST
+
+
+START_TEST(test_list_append_null_list)
+{
+    ListNode node = list_create_node();
+
+    List* result = list_append(NULL, &node);
+
+    ck_assert_ptr_null(result);
+}
+END_TEST
+
+
+START_TEST(test_list_append_null_list_and_node)
+{
+    List* result = list_append(NULL, NULL);
+
+    ck_assert_ptr_null(result);
+}
+END_TEST
+
+
+START_TEST(test_list_append_null_node)
+{
+    List list = list_create();
+
+    List* result = list_append(&list, NULL);
+
+    ck_assert_ptr_eq(result, &list);
+    ck_assert_uint_eq(list.size, 0);
+    ck_assert_ptr_null(list.head);
+    ck_assert_ptr_null(list.tail);
+    ck_assert_int_eq(list.error, LIST_ERROR_NULL_ARGUMENT);
+}
+END_TEST
+
+
+START_TEST(test_list_append_head_null_list)
+{
+    ListNode node = list_create_node();
+
+    List* result = list_append_head(NULL, &node);
+
+    ck_assert_ptr_null(result);
+}
+END_TEST
+
+
+START_TEST(test_list_append_head_null_list_and_node)
+{
+    List* result = list_append_head(NULL, NULL);
+
+    ck_assert_ptr_null(result);
+}
+END_TEST
+
+
+START_TEST(test_list_append_head_null_node)
+{
+    List list = list_create();
+
+    List* result = list_append_head(&list, NULL);
+
+    ck_assert_ptr_eq(result, &list);
+    ck_assert_uint_eq(list.size, 0);
+    ck_assert_ptr_null(list.head);
+    ck_assert_ptr_null(list.tail);
+    ck_assert_int_eq(list.error, LIST_ERROR_NULL_ARGUMENT);
+}
+END_TEST
+
+
+START_TEST(test_list_append_index_null_list)
+{
+    ListNode node = list_create_node();
+
+    List* result = list_append_index(NULL, &node, 0);
+
+    ck_assert_ptr_null(result);
+}
+END_TEST
+
+
+START_TEST(test_list_append_index_null_list_and_node)
+{
+    List* result = list_append_index(NULL, NULL, 0);
+
+    ck_assert_ptr_null(result);
+}
+END_TEST
+
+
+START_TEST(test_list_append_index_null_node)
+{
+    List list = list_create();
+
+    List* result = list_append_index(&list, NULL, 0);
+
+    ck_assert_ptr_eq(result, &list);
+    ck_assert_uint_eq(list.size, 0);
+    ck_assert_ptr_null(list.head);
+    ck_assert_ptr_null(list.tail);
+    ck_assert_int_eq(list.error, LIST_ERROR_NULL_ARGUMENT);
+}
+END_TEST
+
+
+START_TEST(test_list_remove_index_null_list)
+{
+    ListNode* result = list_remove_index(NULL, 0);
+
+    ck_assert_ptr_null(result);
+}
+END_TEST
+
+
+START_TEST(test_list_remove_index_null_list_invalid_index)
+{
+    ListNode* result = list_remove_index(NULL, 100);
+
+    ck_assert_ptr_null(result);
+}
+END_TEST
+
+
+START_TEST(test_list_pop_null_list)
+{
+    ListNode* result = list_pop(NULL);
+
+    ck_assert_ptr_null(result);
+}
+END_TEST
+
+
+/* ============================================================
  * Suite
  * ============================================================ */
 
@@ -481,6 +635,29 @@ Suite* list_suite(void)
     tcase_add_test(tc_pop, test_list_pop_only_node);
     tcase_add_test(tc_pop, test_list_pop_from_nonempty);
 
+    TCase* tc_null = tcase_create("NULL arguments");
+
+    tcase_add_test(tc_null, test_list_get_null_list);
+    tcase_add_test(tc_null, test_list_get_null_list_invalid_index);
+
+    tcase_add_test(tc_null, test_list_append_null_list);
+    tcase_add_test(tc_null, test_list_append_null_list_and_node);
+    tcase_add_test(tc_null, test_list_append_null_node);
+
+    tcase_add_test(tc_null, test_list_append_head_null_list);
+    tcase_add_test(tc_null, test_list_append_head_null_list_and_node);
+    tcase_add_test(tc_null, test_list_append_head_null_node);
+
+    tcase_add_test(tc_null, test_list_append_index_null_list);
+    tcase_add_test(tc_null, test_list_append_index_null_list_and_node);
+    tcase_add_test(tc_null, test_list_append_index_null_node);
+
+    tcase_add_test(tc_null, test_list_remove_index_null_list);
+    tcase_add_test(tc_null, test_list_remove_index_null_list_invalid_index);
+
+    tcase_add_test(tc_null, test_list_pop_null_list);
+
+
     suite_add_tcase(suite, tc_create);
     suite_add_tcase(suite, tc_append);
     suite_add_tcase(suite, tc_head);
@@ -488,6 +665,7 @@ Suite* list_suite(void)
     suite_add_tcase(suite, tc_index);
     suite_add_tcase(suite, tc_remove);
     suite_add_tcase(suite, tc_pop);
+    suite_add_tcase(suite, tc_null);
 
     return suite;
 }
@@ -506,77 +684,3 @@ int main(void)
 
     return failed == 0 ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-
-
-// #include <list.h>
-// #include <stdint.h>
-
-// void list_print(List list) {
-//   Stopif(!list.head, return;, "=== empty list ===");
-//   ListNode* node = list.head;
-//   do {
-//     printf("%04lx <- %04lx -> %04lx\n",
-//        (unsigned long)((uintptr_t)node->prev & 0xffff),
-//        (unsigned long)((uintptr_t)node & 0xffff),
-//        (unsigned long)((uintptr_t)node->next  & 0xffff));
-//     node = node->next;
-//   } while (node != NULL);
-// }
-
-// int main() {
-//   List list;
-//   list = list_create();
-//   ListNode node1 = list_create_node();
-//   ListNode node2 = list_create_node();
-//   ListNode node3 = list_create_node();
-//   list_append(&list, &node1);
-//   list_append(&list, &node2);
-//   list_append(&list, &node3);
-//   list_print(list);
-//   printf("\n");
-//   ListNode node4 = list_create_node();
-//   list_append_head(&list, &node4);
-//   list_print(list);
-//   for (size_t i = 0; i < 6; ++i) printf("node been found: %p\n", (void*)list_get(&list, i));
-//   ListNode node5 = list_create_node();
-//   ListNode node6 = list_create_node();
-//   list_append_index(&list, &node5, 2);
-//   list_append_index(&list, &node6, 2);
-//   list_print(list);
-//   printf("\n");
-//   ListNode node7 = list_create_node();
-//   ListNode node8 = list_create_node();
-//   list_append_index(&list, &node7, 0);
-//   list_append_index(&list, &node8, 6);
-//   list_print(list);
-//   printf("\n");
-//   list_pop(&list);
-//   list_pop(&list);
-//   list_pop(&list);
-//   list_pop(&list);
-//   list_pop(&list);
-//   list_pop(&list);
-//   list_pop(&list);
-//   list_pop(&list);
-//   list_print(list);
-//   printf("\n");
-//   list_append(&list, &node1);
-//   list_append(&list, &node2);
-//   list_append(&list, &node3);
-//   list_append_index(&list, &node7, 0);
-//   list_append_index(&list, &node8, 2);
-//   list_append_index(&list, &node5, 2);
-//   list_append_index(&list, &node6, 2);
-//   list_append_head(&list, &node4);
-//   list_print(list);
-//   printf("\n");
-//   list_remove_index(&list, 7);
-//   list_print(list);
-//   printf("===\n");
-//   for (int i = 0; i < 7; ++i) {
-//     printf("%p\n", list_remove_index(&list, 0));
-//   }
-//   list_print(list);
-//   printf("\n");
-//   return 0;
-// }

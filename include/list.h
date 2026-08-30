@@ -36,6 +36,6 @@ List* list_append_head(List* list, ListNode* node); // добавляет нод
 List* list_append_index(List* list, ListNode* node, size_t index); // добавляет ноду на место переданного индекса
 ListNode* list_remove_index(List* list, size_t index); // удаляет ноду по индексу и возвращает ссылку на неё (в неё уже не будет указателей на ноды оставшие в листе)
 ListNode* list_pop(List* list); // удаляет ноду конца и возвращает ссылку на неё (в неё уже не будет указателей на ноды оставшие в листе)
-const char* list_error_string(ListError error);
+const char* list_error_string(ListError error); // разворачивает код ошибки в понятную строку
 
 #endif  // LIST_H
